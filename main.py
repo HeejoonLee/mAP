@@ -9,7 +9,18 @@ import math
 
 import numpy as np
 
-MINOVERLAP = 0.5 # default value (defined in the PASCAL VOC2012 challenge)
+# [The 2nd SK AI competition]-specific settings
+MINOVERLAP = 0.6
+SK_AI_class_weights = {
+    "normal": 0.17,
+    "unscrewed_red": 0.23,
+    "rusty_yellow": 0.17,
+    "rusty_red": 0.19,
+    "unscrewed_yellow": 0.19,
+    "none": 0.05
+}
+
+#MINOVERLAP = 0.5 # default value (defined in the PASCAL VOC2012 challenge)
 
 parser = argparse.ArgumentParser()
 parser.add_argument('-na', '--no-animation', help="no animation is shown.", action="store_true")
@@ -673,7 +684,12 @@ with open(output_files_path + "/output.txt", 'w') as output_file:
         #print(prec)
 
         ap, mrec, mprec = voc_ap(rec[:], prec[:])
-        sum_AP += ap
+
+        # [The 2nd SK AI competition]-specific settings
+        # The mean is calculated using class-specific weights defined in SK_AI_class_weights
+        #sum_AP += ap
+        sum_AP += ap * SK_AI_class_weights[class_name]
+
         text = "{0:.2f}%".format(ap*100) + " = " + class_name + " AP " #class_name + " AP = {0:.2f}%".format(ap*100)
         """
          Write to output.txt
@@ -724,7 +740,12 @@ with open(output_files_path + "/output.txt", 'w') as output_file:
         cv2.destroyAllWindows()
 
     output_file.write("\n# mAP of all classes\n")
-    mAP = sum_AP / n_classes
+
+    # [The 2nd SK AI competition]-specific settings
+    # The number of classes is fixed(6).
+    #mAP = sum_AP / n_classes
+    mAP = sum_AP
+
     text = "mAP = {0:.2f}%".format(mAP*100)
     output_file.write(text + "\n")
     print(text)
